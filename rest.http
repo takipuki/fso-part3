@@ -1,0 +1,41 @@
+@baseurl = "http://localhost:3000"
+
+GET {{baseurl}}/api/persons
+### 
+GET {{baseurl}}/api/persons/1
+###
+GET {{baseurl}}/api/persons/5
+###
+DELETE {{baseurl}}/api/persons/1
+###
+DELETE {{baseurl}}/api/persons/5
+###
+DELETE {{baseurl}}/api/persons/5
+###
+
+POST {{baseurl}}/api/persons
+Content-Type: application/json
+
+{
+	"name": "taki",
+	"number": "01968733929"
+}
+###
+
+POST {{baseurl}}/api/persons
+Content-Type: application/json
+
+{
+	"name": "taki",
+	"number": ""
+}
+###
+
+POST {{baseurl}}/api/persons
+Content-Type: application/json
+
+{
+	"name": "",
+	"number": "01968733929"
+}
+###

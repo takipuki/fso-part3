@@ -5,6 +5,8 @@
 	"scripts": {
 		"start": "node index.js",
 		"dev": "nodemon index.js",
+		"build:frontend": "cd frontend && npm i && npm run build -- --emptyOutDir ../dist",
+		"build": "npm i && npm run build:frontend",
 		"test": "echo \"Error: no test specified\" && exit 1"
 	},
 	"author": "",

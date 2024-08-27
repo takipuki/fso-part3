@@ -1,15 +1,15 @@
 const morgan = require('morgan');
 const express = require('express');
 const cors = require('cors');
+const mdl_person = require('./models/Person.js');
+require('dotenv').config();
+
+const PORT = process.env.PORT;
 
 const app = express();
-
 app.use(cors());
-
 app.use(express.json());
-
 app.use(express.static('dist'));
-
 app.use(morgan(
 	(tokens, req, res) => {
 		return [
@@ -20,109 +20,96 @@ app.use(morgan(
 			tokens['response-time'](req, res), 'ms',
 			JSON.stringify(req.body),
 		].join(' ')
-	},
-	{ skip: (req, _) => req.method != 'POST' }
+	}
+	// { skip: (req, _) => req.method != 'POST' }
 ));
 
-const PORT = 3000;
 
-let people = [
-	{ 
-		"id": "1",
-		"name": "Arto Hellas", 
-		"number": "040-123456"
-	},
-	{ 
-		"id": "2",
-		"name": "Ada Lovelace", 
-		"number": "39-44-5323523"
-	},
-	{ 
-		"id": "3",
-		"name": "Dan Abramov", 
-		"number": "12-43-234345"
-	},
-	{ 
-		"id": "4",
-		"name": "Mary Poppendieck", 
-		"number": "39-23-6423122"
-	}
-];
-
-
-app.get('/info', (_, res) => {
-	res.send(`
-<p>Phonebook has info for ${people.length} people</p>
-<p>${(new Date()).toString()}</p>
-`)
+app.get('/info', (_, res, next) => {
+	mdl_person
+		.find({})
+		.then(result => res.send(`
+			<p>Phonebook has info for ${result.length} people</p>
+			<p>${(new Date()).toString()}</p>
+		`))
+		.catch(err => next(err));
 });
 
 
-app.get('/api/persons', (_, res) => {
-	res.json(people);
+app.get('/api/persons', (_, res, next) => {
+	mdl_person
+		.find({})
+		.then(result => res.json(result))
+		.catch(err => next(err));
 });
 
 
-app.get('/api/persons/:id', (req, res) => {
-	const p = people.find(v => v.id === req.params.id);
-	if (!p) return res.status(404).end();
-	res.json(p);
+app.get('/api/persons/:id', (req, res, next) => {
+	mdl_person
+		.findById(req.params.id)
+		.then(result => {
+			if (!result) return res.status(404).end();
+			res.json(result);
+		})
+		.catch(err => next(err));
 });
 
 
-app.post('/api/persons', (req, res) => {
+app.post('/api/persons', (req, res, next) => {
 	if (!(req.body.name && req.body.number))
 		return res.status(400).json({ error: 'empty name or number' });
 
-	if (people.some(v => v.name === req.body.name))
-		return res.status(400).json({ error: 'name already exists' });
+	mdl_person
+		.findOne({name: req.body.name})
+		.then(result => {
+			if (result)
+				return res.status(400).json({ error: 'name already exists' });
 
-	const p = {
-		id: Math.round(Math.random() * 100).toString(),
-		...req.body,
-	};
+			const p = new mdl_person({
+				name: req.body.name,
+				number: req.body.number,
+			});
 
-	people = people.concat(p);
-	
-	res.status(201).json(p);
+			p.save()
+				.then(result => res.status(201).json(result))
+				.catch(err => next(err));
+		})
+		.catch(err => next(err));
 });
 
 
-app.put('/api/persons/:id', (req, res) => {
+app.put('/api/persons/:id', (req, res, next) => {
 	if (!(req.body.name && req.body.number))
 		return res.status(400).json({ error: 'empty name or number' });
 
-	let tmp = null;
-	people = people.map(v => {
-		if (v.id === req.params.id) {
-			tmp = {id: v.id, ...req.body}
-			return tmp;
-		}
-		return v;
-	})
-
-	if (!tmp) {
-		tmp = {id: req.params.id, ...req.body};
-		people = people.concat(tmp);
-	}
-
-	res.json(tmp);
+	mdl_person
+		.findByIdAndUpdate(req.params.id, { number: req.body.number })
+		.then(result => {
+			result.number = req.body.number;
+			res.json(result);
+		})
+		.catch(err => next(err));
 })
 
 
-app.delete('/api/persons/:id', (req, res) => {
-	let tmp = null;
-	people = people.filter(v => {
-		if (v.id === req.params.id) {
-			tmp = v;
-			return false;
-		}
-		return true;
-	});
-
-	if (tmp) res.json(tmp);
-	else res.status(204).end();
+app.delete('/api/persons/:id', (req, res, next) => {
+	mdl_person
+		.deleteOne({ _id: req.params.id })
+		.then(_ => res.status(204).end())
+		.catch(err => next(err));
 });
 
 
-app.listen(PORT);
+app.use((err, req, res, next) => {
+	console.log(err.message);
+	switch (err.name) {
+	case 'CastError':
+		res.status(400).json({ error: "invalid id" });
+		break;
+	default:
+		res.status(500).end();
+	}
+})
+
+
+app.listen(PORT, () => console.log(`server on port ${PORT}`));

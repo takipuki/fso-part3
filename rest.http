@@ -1,19 +1,19 @@
-@baseurl = "http://localhost:3000"
+:baseurl = http://localhost:3000
 
-GET {{baseurl}}/api/persons
+GET :baseurl/api/persons
 ### 
-GET {{baseurl}}/api/persons/1
+GET :baseurl/api/persons/1
 ###
-GET {{baseurl}}/api/persons/5
+GET :baseurl/api/persons/5
 ###
-DELETE {{baseurl}}/api/persons/1
+DELETE :baseurl/api/persons/1
 ###
-DELETE {{baseurl}}/api/persons/5
+DELETE :baseurl/api/persons/5
 ###
-DELETE {{baseurl}}/api/persons/5
+DELETE :baseurl/api/persons/5
 ###
 
-POST {{baseurl}}/api/persons
+POST :baseurl/api/persons
 Content-Type: application/json
 
 {
@@ -22,7 +22,16 @@ Content-Type: application/json
 }
 ###
 
-POST {{baseurl}}/api/persons
+PUT :baseurl/api/persons/66cd2cfbc4d5838656750dbd
+Content-Type: application/json
+
+{
+	"name": "taki",
+	"number": "01968733929"
+}
+###
+
+POST :baseurl/api/persons
 Content-Type: application/json
 
 {
@@ -31,7 +40,7 @@ Content-Type: application/json
 }
 ###
 
-POST {{baseurl}}/api/persons
+POST :baseurl/api/persons
 Content-Type: application/json
 
 {

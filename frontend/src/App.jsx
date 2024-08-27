@@ -47,8 +47,8 @@ function App() {
     if (window.confirm(`Really delete ${person.name}`))
       phonebook
         .remove(person)
-        .then(data => {
-          setPersons(persons.filter(v => v.id != data.id));
+        .then(_ => {
+          setPersons(persons.filter(v => v.id != person.id));
           notify({text: `Deleted ${person.name}`, type: 'success'});
         })
         .catch(() => {

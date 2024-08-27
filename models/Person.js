@@ -6,13 +6,24 @@ const MONGODB_URI = process.env.MONGODB_URI;
 mongoose.set('strictQuery', false);
 mongoose
 	.connect(MONGODB_URI)
-	.then(() => console.log("Successfully connected to databse."))
+	.then(() => console.log("Successfully connected to databse."));
 
-const scm_note = new mongoose.Schema({
-	name: String,
-	number: String
+const scm_person = new mongoose.Schema({
+	name: {
+		type: String,
+		minLength: [3, 'too small...'],
+		required: [true, 'do u have a name buddy?'],
+	},
+	number: {
+		type: String,
+		validate: {
+			validator: v => v.length >= 8 && /\d{2,3}-\d+/,
+			message: props => `${props.value} is not a phone number`,
+		},
+		required: [true, 'need thy number'],
+	}
 });
-scm_note.set('toJSON', {
+scm_person.set('toJSON', {
 	transform: (_, retObj) => {
 		retObj.id = retObj._id.toString();
 		delete retObj._id;
@@ -20,6 +31,6 @@ scm_note.set('toJSON', {
 	}
 });
 
-const mdl_note = new mongoose.model('Person', scm_note);
+const mdl_person = new mongoose.model('Person', scm_person);
 
-module.exports = mdl_note;
+module.exports = mdl_person;

@@ -27,7 +27,8 @@ function App() {
           .then(data => {
             setPersons(persons.map(v => v.id === data.id ? data : v));
             notify({text: 'Number updated.', type: 'success'});
-          });
+          })
+					.catch(err => notify({text: err.response.data.message, type: 'failure'}));
         return true;
       }
       return false;
@@ -39,22 +40,22 @@ function App() {
         setPersons(persons.concat(data));
         notify({text: `Added ${data.name}`, type: 'success'});
       })
+			.catch(err => notify({text: err.response.data.message, type: 'failure'}));
 
     return true;
   };
 
-  const hdlDeletion = person => {
-    if (window.confirm(`Really delete ${person.name}`))
-      phonebook
-        .remove(person)
-        .then(_ => {
-          setPersons(persons.filter(v => v.id != person.id));
-          notify({text: `Deleted ${person.name}`, type: 'success'});
-        })
-        .catch(() => {
-          notify({text: `${person.name} doesn't exist.`, type: 'failure'})
-        });
-  };
+	const hdlDeletion = person => {
+		if (window.confirm(`Really delete ${person.name}`)) {
+			phonebook
+				.remove(person)
+				.then(_ => {
+					setPersons(persons.filter(v => v.id != person.id));
+					notify({text: `Deleted ${person.name}`, type: 'success'});
+				})
+				.catch(err => notify({text: err.response.data.message, type: 'failure'}));
+		}
+	};
 
   return (
     <div>

@@ -5,6 +5,9 @@ const mdl_person = require('./models/Person.js');
 require('dotenv').config();
 
 const PORT = process.env.PORT;
+const QUERY_OPTS = {
+	runValidators: true,
+};
 
 const app = express();
 app.use(cors());
@@ -56,14 +59,11 @@ app.get('/api/persons/:id', (req, res, next) => {
 
 
 app.post('/api/persons', (req, res, next) => {
-	if (!(req.body.name && req.body.number))
-		return res.status(400).json({ error: 'empty name or number' });
-
 	mdl_person
-		.findOne({name: req.body.name})
+		.findOne({name: req.body.name}, QUERY_OPTS)
 		.then(result => {
 			if (result)
-				return res.status(400).json({ error: 'name already exists' });
+				return res.status(400).json({ message: 'name already exists' });
 
 			const p = new mdl_person({
 				name: req.body.name,
@@ -79,11 +79,8 @@ app.post('/api/persons', (req, res, next) => {
 
 
 app.put('/api/persons/:id', (req, res, next) => {
-	if (!(req.body.name && req.body.number))
-		return res.status(400).json({ error: 'empty name or number' });
-
 	mdl_person
-		.findByIdAndUpdate(req.params.id, { number: req.body.number })
+		.findByIdAndUpdate(req.params.id, { number: req.body.number }, QUERY_OPTS)
 		.then(result => {
 			result.number = req.body.number;
 			res.json(result);
@@ -101,10 +98,13 @@ app.delete('/api/persons/:id', (req, res, next) => {
 
 
 app.use((err, req, res, next) => {
-	console.log(err.message);
+	console.log(err.name, '->', err.message);
 	switch (err.name) {
 	case 'CastError':
-		res.status(400).json({ error: "invalid id" });
+		res.status(400).json({ message: "invalid id" });
+		break;
+	case 'ValidationError':
+		res.status(400).json({ message: err.message });
 		break;
 	default:
 		res.status(500).end();

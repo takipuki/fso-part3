@@ -6,7 +6,7 @@ const MONGODB_URI = process.env.MONGODB_URI;
 mongoose.set('strictQuery', false);
 mongoose
 	.connect(MONGODB_URI)
-	.then(() => console.log("Successfully connected to databse."));
+	.then(() => console.log('Successfully connected to databse.'));
 
 const scm_person = new mongoose.Schema({
 	name: {

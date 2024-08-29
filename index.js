@@ -22,7 +22,7 @@ app.use(morgan(
 			tokens.res(req, res, 'content-length'), '-',
 			tokens['response-time'](req, res), 'ms',
 			JSON.stringify(req.body),
-		].join(' ')
+		].join(' ');
 	}
 	// { skip: (req, _) => req.method != 'POST' }
 ));
@@ -60,7 +60,7 @@ app.get('/api/persons/:id', (req, res, next) => {
 
 app.post('/api/persons', (req, res, next) => {
 	mdl_person
-		.findOne({name: req.body.name}, QUERY_OPTS)
+		.findOne({ name: req.body.name }, QUERY_OPTS)
 		.then(result => {
 			if (result)
 				return res.status(400).json({ message: 'name already exists' });
@@ -86,7 +86,7 @@ app.put('/api/persons/:id', (req, res, next) => {
 			res.json(result);
 		})
 		.catch(err => next(err));
-})
+});
 
 
 app.delete('/api/persons/:id', (req, res, next) => {
@@ -97,11 +97,11 @@ app.delete('/api/persons/:id', (req, res, next) => {
 });
 
 
-app.use((err, req, res, next) => {
+app.use((err, _, res, __) => {
 	console.log(err.name, '->', err.message);
 	switch (err.name) {
 	case 'CastError':
-		res.status(400).json({ message: "invalid id" });
+		res.status(400).json({ message: 'invalid id' });
 		break;
 	case 'ValidationError':
 		res.status(400).json({ message: err.message });
@@ -109,7 +109,7 @@ app.use((err, req, res, next) => {
 	default:
 		res.status(500).end();
 	}
-})
+});
 
 
 app.listen(PORT, () => console.log(`server on port ${PORT}`));

@@ -21,7 +21,7 @@ scm_note.set('toJSON', {
 const mdl_note = new mongoose.model('Person', scm_note);
 
 // just show all
-if (process.argv.length != 4) {
+if (process.argv.length !== 4) {
 	mdl_note
 		.find({})
 		.then(res => {
@@ -29,7 +29,7 @@ if (process.argv.length != 4) {
 			res.forEach(v => console.log(v.id.toString(), v.name, v.number));
 			// console.log(res);
 			mongoose.connection.close();
-		})
+		});
 } else {
 	const person = new mdl_note({
 		name: process.argv[2],
@@ -42,6 +42,6 @@ if (process.argv.length != 4) {
 	person.save().then(_ => {
 		console.log('saved');
 		mongoose.connection.close();
-	})
+	});
 }
 
